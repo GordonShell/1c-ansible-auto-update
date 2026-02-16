@@ -25,4 +25,8 @@ Ansible playbooks для автоматизации установки и обн
 
 ## 🔧 Установка ansible
 ```
-sudo apt install ansible –y 
+sudo apt install ansible –y
+```
+## 🚀 Настройка WinRM
+
+```https://docs.ansible.com/projects/ansible/latest/os_guide/windows_winrm.html```
