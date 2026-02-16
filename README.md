@@ -57,7 +57,7 @@ pip3 install pywinrm
 ```
 sudo apt install python3-winrm -y
 ```
-## Настройка WinRM
+## 🔧 Настройка WinRM
 
 На целевой Windows машине (PowerShell от администратора):
 
