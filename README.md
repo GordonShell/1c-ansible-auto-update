@@ -30,3 +30,4 @@ sudo apt install ansible –y
 ## 🚀 Настройка WinRM
 
 ```https://docs.ansible.com/projects/ansible/latest/os_guide/windows_winrm.html```
+```https://gist.github.com/nikhilsingnurkar/9776116d44446a3f5da64d71cfafe57f#file-configureremotingforansible-ps1```
