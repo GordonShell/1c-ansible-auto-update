@@ -37,6 +37,6 @@ sudo apt install ansible –y
 ```
 
 Ping
-
-```ansible -i hosts.ini windows_depo_new_pc -m win_ping
+```
+ansible -i hosts.ini windows_depo_new_pc -m win_ping
 ```
