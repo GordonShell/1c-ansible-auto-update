@@ -1,3 +1,8 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Ansible](https://img.shields.io/badge/Ansible-2.9+-blue.svg)](https://www.ansible.com/)
+[![1C](https://img.shields.io/badge/1C-8.3.27-green.svg)](https://1c.ru/)
+[![Windows](https://img.shields.io/badge/Windows-WinRM-blue)](https://docs.ansible.com/ansible/latest/os_guide/windows_winrm.html)
+[![WSL2](https://img.shields.io/badge/WSL2-Ubuntu-orange)](https://learn.microsoft.com/ru-ru/windows/wsl/)
 Ansible playbooks для автоматизации установки и обновления платформы 1С:Предприятие на Windows-хостах через WSL2.
 
 ## 📋 Содержание
