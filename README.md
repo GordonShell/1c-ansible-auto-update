@@ -184,6 +184,119 @@ ansible_winrm_server_cert_validation = ignore
 
 ## 🔧 Настройка install_1c.yml
 
+---
+- name: Install 1C from archive
+  hosts: windows_depo_new_pc
+  gather_facts: true
+
+  vars:
+    # Путь к архиву 1С на вашем Linux-компьютере
+    archive_path: "/home/admin/files/setuptc64_8_3_27_1859.zip"
+
+    # Временная папка на Windows для распаковки
+    temp_dir: "C:\\Temp\\1с_fixed_install"
+
+  tasks:
+    - name: Create temp directory on Windows
+      ansible.windows.win_file:
+        path: "{{ temp_dir }}"
+        state: directory
+
+    - name: Copy archive to Windows
+      ansible.windows.win_copy:
+        src: "{{ archive_path }}"
+        dest: "{{ temp_dir }}\\setuptc64_8_3_27_1859.zip"
+      when: archive_path is defined
+
+    - name: Extract archive using PowerShell
+      ansible.windows.win_shell: |
+        # Создаем папку для распаковки
+        $extractPath = "{{ temp_dir }}\\extracted"
+        New-Item -ItemType Directory -Path $extractPath -Force
+
+        # Распаковываем архив
+        Add-Type -AssemblyName System.IO.Compression.FileSystem
+        [System.IO.Compression.ZipFile]::ExtractToDirectory("{{ temp_dir }}\\setuptc64_8_3_27_1859.zip", $extractPath)
+
+        Write-Output "Archive extracted to: $extractPath"
+      register: extract_result
+
+    - name: Show extract result
+      debug:
+        var: extract_result.stdout
+
+    - name: Find setup files in extracted directory
+      ansible.windows.win_find:
+        paths: "{{ temp_dir }}\\extracted"
+        patterns: "*.exe"
+        file_type: file
+        recurse: yes
+      register: found_setup_files
+
+    - name: Display found setup files
+      debug:
+        var: found_setup_files.files
+
+    - name: Install 1C from found setup file
+      block:
+        - name: Run setup file
+          ansible.windows.win_package:
+            path: "{{ found_setup_files.files[0].path }}"
+            arguments: "/S /quiet /norestart"
+            state: present
+          register: install_result
+
+        - name: Show installation result
+          debug:
+            var: install_result
+      when: found_setup_files.files | length > 0
+
+    - name: Alternative installation method
+      ansible.windows.win_shell: |
+        $setupFile = "{{ found_setup_files.files[0].path }}"
+        if (Test-Path $setupFile) {
+            Write-Output "Installing from: $setupFile"
+            $process = Start-Process -FilePath $setupFile -ArgumentList "/S", "/quiet", "/norestart" -PassThru -Wait
+            Write-Output "Exit code: $($process.ExitCode)"
+        } else {
+            Write-Error "Setup file not found: $setupFile"
+        }
+      when: found_setup_files.files | length > 0
+      register: alt_install_result
+
+    - name: Verify 1C installation
+      ansible.windows.win_shell: |
+        # Проверяем установленные программы
+        $1cProducts = Get-WmiObject -Class Win32_Product | Where-Object {$_.Name -like "*1C*"}
+        if ($1cProducts) {
+            $1cProducts | Format-List Name, Version
+        } else {
+            Write-Output "1C products not found in installed programs"
+
+            # Альтернативная проверка через реестр
+            $registryPaths = @(
+                "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*",
+                "HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*"
+            )
+            $installedSoftware = Get-ItemProperty $registryPaths -ErrorAction SilentlyContinue |
+                                Where-Object {$_.DisplayName -like "*1C*"}
+            if ($installedSoftware) {
+                $installedSoftware | Select-Object DisplayName, DisplayVersion
+            }
+        }
+      register: verify_installation
+
+    - name: Show installation verification
+      debug:
+        var: verify_installation.stdout_lines
+
+    - name: Clean up temp files (optional)
+      ansible.windows.win_file:
+        path: "{{ temp_dir }}"
+        state: absent
+      ignore_errors: yes
+```
+
 Ping
 ```
 ansible -i hosts.ini windows_depo_new_pc -m win_ping
