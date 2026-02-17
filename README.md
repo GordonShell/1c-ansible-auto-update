@@ -143,7 +143,9 @@ https://docs.ansible.com/projects/ansible/latest/os_guide/windows_winrm.html
 ```
 https://gist.github.com/nikhilsingnurkar/9776116d44446a3f5da64d71cfafe57f#file-configureremotingforansible-ps1
 ```
-## 🎯 Пример hosts.ini
+## 📁 Настройка окружения
+
+🎯 Пример hosts.ini
 ```
 [windows_depo_new_pc]
 windows_pc1 ansible_host=192.168.4.239   #w135
@@ -180,7 +182,7 @@ ansible_winrm_scheme = https
 ansible_winrm_server_cert_validation = ignore  
 ```
 
-## 🔧 Настройка install_1c.yml
+🔧 Настройка install_1c.yml
 
 ```
 - name: Install 1C from archive
